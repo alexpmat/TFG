@@ -1,99 +1,82 @@
 const express = require('express');
-const fs = require('fs');
 const cors = require('cors');
-const { Client } = require('pg');
+const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Habilitar CORS para permitir solicitudes desde diferentes orígenes
 app.use(cors());
-
-// Habilitar el uso de JSON en las solicitudes
 app.use(express.json());
 
-
-// Configuración de la conexión a la base de datos PostgreSQL
-const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'evacuacion_tsunamis',  // Nombre de la base de datos
-    password: 'contrasenia',
-    port: 5432,
+// Conexion a PostgreSQL usando DATABASE_URL de Render
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
-// Conectar a la base de datos
-client.connect();
-
-// Ruta para obtener las rutas de evacuación desde la base de datos
+// Ruta para obtener todas las rutas de evacuacion
 app.get('/evacuacion', async (req, res) => {
-    try {
-        const result = await client.query(`
-            SELECT id, nombre, ST_AsGeoJSON(geom) AS geom
-            FROM rutas_evacuacion;
-        `);
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error al obtener los datos de evacuación' });
-    }
+  try {
+    const result = await pool.query(`
+      SELECT id, nombre, ST_AsGeoJSON(geom) AS geom
+      FROM rutas_evacuacion;
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al obtener las rutas de evacuación:', err);
+    res.status(500).json({ error: 'Error al obtener las rutas de evacuación' });
+  }
 });
 
-// Ruta para servir el archivo GeoJSON con las rutas de evacuación generadas
-app.get('/evacuacion_geojson', (req, res) => {
-    const filePath = 'data/rutaEvacuacion.geojson';
-    
-    fs.stat(filePath, (err, stats) => {
-        if (err || !stats.isFile()) {
-            console.error("Error: No se encontró el archivo GeoJSON.");
-            return res.status(500).json({ error: 'No se pudo encontrar el archivo GeoJSON' });
-        }
-
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                console.error("Error al leer el archivo GeoJSON:", err);
-                return res.status(500).json({ error: 'No se pudo leer el archivo GeoJSON' });
-            }
-            console.log("Archivo GeoJSON leído correctamente.");
-            res.header('Content-Type', 'application/json');
-            res.send(data);
-        });
-    });
-});
-
-// Endpoint que devuelve la ruta óptima según el sector elegido
+// Ruta para obtener la mejor ruta segun el sector seleccionado
 app.post('/ruta_optima', async (req, res) => {
-    const { sector_id } = req.body;
-    console.log('Buscando ruta para sector:', sector_id);
+  const { sector_id } = req.body;
+  console.log('Buscando ruta para sector:', sector_id);
 
-    if (!sector_id) {
-        return res.status(400).json({ error: 'Sector no especificado' });
+  if (!sector_id) {
+    return res.status(400).json({ error: 'Sector no especificado' });
+  }
+
+  try {
+    const result = await pool.query(`
+      SELECT id, nombre, ST_AsGeoJSON(geom) AS geom
+      FROM rutas_evacuacion
+      WHERE sector_id = $1
+      ORDER BY prioridad DESC
+      LIMIT 1;
+    `, [sector_id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No se encontró una ruta para el sector seleccionado' });
     }
 
-    try {
-        // Consulta la base de datos para obtener la ruta más óptima de ese sector
-        const result = await client.query(`
-            SELECT id, nombre, ST_AsGeoJSON(geom) AS geom
-            FROM rutas_evacuacion
-            WHERE sector_id = $1
-            ORDER BY prioridad DESC
-            LIMIT 1;
-        `, [sector_id]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'No se encontró una ruta para el sector seleccionado' });
-        }
-
-        res.json(result.rows[0]);
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error al obtener la ruta optimizada' });
-    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error al obtener la ruta óptima:', err);
+    res.status(500).json({ error: 'Error al obtener la ruta optimizada' });
+  }
 });
 
+// Servir el archivo GeoJSON de los sectores
+app.get('/sectores', (req, res) => {
+  const filePath = path.join(__dirname, 'sectores.geojson');
 
-// Iniciar el servidor
-app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error al leer el archivo de sectores:', err);
+      res.status(500).json({ error: 'Error al leer el archivo de sectores' });
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(data);
+    }
+  });
+});
+
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
