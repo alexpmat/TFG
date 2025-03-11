@@ -1,0 +1,23 @@
+
+# Node.js
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Modelos pesados
+*.pkl
+
+# Entornos
+.env
+
+# Logs
+*.log
+
+# Bases de datos temporales
+*.sqlite
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comienza a Optimizar Rutas Hoy</title>
+    <!-- Enlace a los estilos de Leaflet para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+
+        /* Estilo general para el cuerpo */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fa;
+        }
+
+        /* Estilo para el encabezado */
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Estilo para el menú de navegación */
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #0056b3;
+            padding: 10px 0;
+        }
+
+        /* Estilo para los enlaces del menú */
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1rem;
+        }
+
+        /* Efecto hover para los enlaces del menú */
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Estilo para la sección principal */
+        .hero {
+            text-align: center;
+            padding: 60px 0px;
+            background-color: #e3f2fd;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Estilo para el título principal */
+        .hero h2 {
+            color: #007bff;
+            font-size: 2.5rem;
+        }
+
+        /* Estilo para el párrafo en la sección principal */
+        .hero p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        /* Imagen de la sección principal */
+        .hero img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Contenedor de estadísticas */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+            padding: 20px;
+        }
+
+        /* Estilo para cada tarjeta de estadísticas */
+        .stat {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Estilo para los números y símbolos dentro de las estadísticas */
+        .stat h2 {
+            color: #007bff;
+            font-size: 2rem;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* Estilo para el texto explicativo debajo de los números */
+        .stat p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        /* Estilo para el mapa */
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-top: 40px;
+            border: 1px solid #ddd;
+        }
+
+        /* Estilo para las características */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Estilo para cada característica */
+        .feature {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo para los títulos de las características */
+        .feature h3 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        /* Estilo para los párrafos de las características */
+        .feature p {
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        /* Estilo para la llamada a la acción */
+        .cta {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        /* Estilo para el enlace de la llamada a la acción */
+        .cta a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* Efecto hover para el enlace de la llamada a la acción */
+        .cta a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para el pie de página */
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Estilo para la sección de contacto */
+        .contact-section {
+            background-color: #e9ecef;
+            padding: 60px 20px;
+            margin-top: 50px;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Estilo para el contenedor de contacto */
+        .contact {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Estilo para el título de contacto */
+        .contact h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para los botones de contacto */
+        .contact a {
+            display: inline-block;
+            margin: 10px;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            padding: 12px 25px;
+            border-radius: 5px;
+        }
+
+        /* Efecto hover para los botones de contacto */
+        .contact a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para la información adicional de contacto */
+        .contact-info {
+            margin-top: 40px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado principal -->
+    <header>
+        <h1>Comienza a Optimizar Rutas de Evacuación Hoy</h1>
+    </header>
+
+    <!-- Menú de navegación -->
+    <nav>
+        <a href="#">Inicio</a> <!-- Enlace a la sección principal -->
+        <a href="#caracteristicas">Características</a> <!-- Enlace a la sección de características -->
+        <a href="#map">Mapa</a> <!-- Enlace a la sección del mapa -->
+        <a href="#contacto">Contacto</a> <!-- Enlace a la sección de contacto -->
+    </nav>
+
+    <!-- Sección principal -->
+    <section class="hero">
+        <h2>Descubre una nueva forma de planificar rutas</h2>
+        <p>Aplicando inteligencia artificial, teoría de grafos y geomática para ofrecer las rutas más seguras y eficientes.</p>
+        <img src="imagenPortada.jpeg" alt="Imagen aérea de la playa"> 
+    </section>
+
+    <!-- Sección de estadísticas -->
+    <section id="caracteristicas" class="container">
+        <div class="stats">
+            <div class="stat">
+                <h2><span class="count" data-count="2">0</span>x</h2> <!-- Número inicial de la animación -->
+                <p><b>Eficiencia Mejorada</b><br>Rutas más rápidas y seguras</p>
+            </div>
+            <div class="stat">
+                <h2><span class="count" data-count="99">0</span>%</h2> <!-- Número inicial de la animación -->
+                <p><b>Precisión en Predicciones</b><br>Confianza en las rutas propuestas</p>
+            </div>
+            <div class="stat">
+                <h2><span class="count" data-count="30">0</span>%</h2> <!-- Número inicial de la animación -->
+                <p><b>Innovación en Procesos</b><br>Nuevas tecnologías aplicadas</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de características -->
+    <section class="features">
+        <div class="feature">
+            <h3>Optimización basada en IA</h3>
+            <p>El modelo utiliza algoritmos de machine learning para predecir rutas óptimas.</p>
+        </div>
+        <div class="feature">
+            <h3>Integración de datos espaciales</h3>
+            <p>Se utilizan bases de datos avanzadas como PostGIS para un modelado preciso de las redes viales.</p>
+        </div>
+        <div class="feature">
+            <h3>Simulaciones dinámicas</h3>
+            <p>Prueba escenarios de evacuación con el visor cartográfico interactivo.</p>
+        </div>
+    </section>
+
+    <!-- Sección del mapa -->
+    <section id="map">
+    </section>
+
+    <!-- Botón para accededer a la web del Instituto Geográfico Nacional -->
+    <div class="cta">
+        <!-- Link a la web -->
+        <a href="https://www.ign.es/">Descubre Más</a>
+    </div>
+
+    <!-- Sección de contacto -->
+    <section class="contact-section" id="contacto">
+        <div class="contact">
+            <h3>Contacto: Alex Pareja Mateos</h3>
+            <div class="contact-info">
+                <a href="mailto:aparemat@myuax.com">Enviar correo</a> <!-- Enlace para enviar un correo a la dirección aparemat@myuax.com -->
+                <a href="https://www.linkedin.com/in/alex-pareja-mateos-a13845199">LinkedIn</a> <!-- Enlace al perfil de LinkedIn -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pie de página -->
+    <footer>
+        &copy; 2025 Proyecto TFG - Optimización de Rutas de Evacuación ante Tsunamis
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
+    <script>
+        // Inicializa el visor cartográfico
+        const map = L.map('map').setView([38.0834, -0.6516], 14); // Coordenadas de Alicante y nivel de zoom
+
+        // Añade una capa base de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { // URL de la capa base
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' // Créditos de OpenStreetMap
+        }).addTo(map); // Añade la capa base al mapa
+
+        // Añade un marcador en la playa centro de Alicante
+        L.marker([38.0828, -0.6462]).addTo(map)
+            .bindPopup('Playa Centro de Alicante<br>¡Selecciona tu sector para comenzar la evacuación!') // Añade un mensaje emergente al marcador
+            .openPopup(); // Abre el mensaje emergente automáticamente
+
+        // Animación de números de la sección de estadísticas 
+        document.addEventListener('DOMContentLoaded', function () { // Esperar a que el contenido se cargue
+            const counters = document.querySelectorAll('.count'); // Seleccionar todos los elementos con la clase 'count'
+            let hasAnimated = false; // Variable para rastrear si la animación ya se ha ejecutado
+
+            function countUp() { // Función para animar los números de forma ascendente
+                counters.forEach(counter => { // Para cada contador en la lista de contadores
+                    const target = +counter.getAttribute('data-count'); // Obtener el número objetivo del atributo data-count
+                    let count = 0; // Inicializar el contador en 0
+                    const increment = target / 100; // Calcular el incremento basado en el número objetivo
+
+                    const interval = setInterval(() => { // Función para incrementar el contador
+                        count += increment; // Incrementar el contador
+                        if (count >= target) { // Detener la animación una vez se alcance el número objetivo
+                            count = target; 
+                            clearInterval(interval); 
+                        }
+                        counter.innerText = Math.floor(count); // Redondear el número para evitar decimales
+                    }, 20); // Intervalo de 20ms para una animación suave
+                });
+            }
+
+            const observer = new IntersectionObserver((entries) => { // Usar IntersectionObserver para detectar cuando la sección stats es visible al menos 60% en la pantalla
+                entries.forEach(entry => { // Por cada entrada en la lista de observaciones
+                    if (entry.isIntersecting && !hasAnimated) { // Si la sección es visible y la animación no se ha ejecutado
+                        countUp(); // Ejecutar la animación
+                        hasAnimated = true; // Marca la animación como ejecutada
+                        observer.disconnect(); // Deja de observar una vez se haya ejecutado la animación
+                    }
+                });
+            }, { threshold: 0.6 }); // Ejecutar cuando al menos el 60% de la sección sea visible
+
+            observer.observe(document.querySelector('.stats')); // Observar la sección de estadísticas
+        });
+
+        // Función para predecir el tiempo de evacuación
+        function predecirTiempo() {
+            const features = {
+            features: [
+                parseFloat(document.getElementById("entry_cost").value),
+                parseFloat(document.getElementById("exit_cost").value),
+                parseFloat(document.getElementById("cost_graph").value),
+                parseInt(document.getElementById("trafico").value),
+                parseInt(document.getElementById("obstaculos").value)
+            ]
+        };
+
+        fetch("http://localhost:5000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(features)
+        })
+            .then(response => response.json())
+            .then(data => {
+             document.getElementById("prediccion_resultado").innerText = 
+                    "Tiempo estimado de evacuación: " + data.prediction.toFixed(2) + " minutos";
+            })
+            .catch(error => console.error("Error en la predicción:", error));
+        }
+
+        // Estos son los sectores divididos con coordenadas
+        const sectores = [
+        {
+            id: 1,
+            nombre: 'Sector 1',
+            coordenadas: 
+            [[38.0886, -0.6469],
+            [38.0886, -0.6464],
+            [38.0873, -0.6465],
+            [38.0873, -0.6470],
+            [38.0886, -0.6469]]
+        },
+        {
+            id: 2,
+            nombre: 'Sector 2',
+            coordenadas: [
+            [38.0873, -0.6470],
+            [38.0873, -0.6465],
+            [38.0848, -0.6467],
+            [38.0849, -0.6474],
+            [38.0873, -0.6470]]
+        },
+        {
+            id: 3,
+            nombre: 'Sector 3',
+            coordenadas: [
+            [38.0849, -0.6473],
+            [38.0848, -0.6467],
+            [38.0763, -0.6475],
+            [38.0762, -0.6482],
+            [38.0849, -0.6473]]
+        },
+        {
+            id: 4,
+            nombre: 'Sector 4',
+            coordenadas: [
+            [38.0762, -0.6482],
+            [38.0763, -0.6475],
+            [38.0736, -0.6478],
+            [38.0736, -0.6486],
+            [38.0762, -0.6482]]
+        }
+        ];
+
+        // Función para cargar los sectores
+        sectores.forEach(sector => {
+            const polygon = L.polygon(sector.coordenadas, {
+            color: 'blue',
+            fillColor: '#3388ff',
+            fillOpacity: 0.4
+        }).addTo(map);
+
+        polygon.bindPopup(`Sector: ${sector.nombre}<br><button onclick="obtenerRutaOptima(${sector.id})">Ver Ruta de Evacuación</button>`);
+        });
+
+        let rutaLayer = null;
+
+        async function obtenerRutaOptima(sectorId) {
+            try {
+                const response = await fetch('http://localhost:3000/ruta_optima', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sector_id: sectorId })
+                });
+        
+                if (!response.ok) {
+                    throw new Error('No se encontró ruta para el sector seleccionado');
+                }
+        
+                const data = await response.json();
+        
+                if (rutaLayer) {
+                    map.removeLayer(rutaLayer);
+                }
+        
+                rutaLayer = L.geoJSON(JSON.parse(data.geom)).addTo(map);
+        
+                rutaLayer.bindPopup(`
+                    <b>Instrucciones a seguir para tu sector:</b><br>
+                    <b>SAL DE LA PLAYA POR LA CALLE MÁS CERCANA A TU POSICIÓN<b><br>
+                    Después, sigue la ruta mostrada hacia el Castillo de Guardamar
+                `).openPopup();
+        
+                map.fitBounds(rutaLayer.getBounds());
+        
+            } catch (error) {
+                console.error('Error al obtener la ruta óptima:', error);
+                alert('No se pudo obtener la ruta de evacuación.');
+            }
+        }
+
+    </script>
+</body>
+</html>
